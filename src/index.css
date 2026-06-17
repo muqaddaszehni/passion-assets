@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-ivory text-charcoal font-sans;
+    margin: 0;
+    /* faint paper grain for the printed-report feel */
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(28, 28, 28, 0.018) 1px, transparent 0);
+    background-size: 4px 4px;
+  }
+
+  ::selection {
+    background: rgba(176, 144, 79, 0.22);
+  }
+}
+
+@layer components {
+  /* letter-spaced small-caps label, the spine of the typographic system */
+  .eyebrow {
+    @apply font-sans uppercase tracking-label text-[10.5px] font-medium;
+  }
+
+  .hairline {
+    @apply border-hairline;
+  }
+
+  .card {
+    @apply bg-white/70 border border-hairline shadow-card;
+  }
+
+  /* refined number display */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+}
+
+/* ---- React Flow overrides to match the register aesthetic ---- */
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-path {
+  stroke: #b0904f;
+  stroke-width: 1;
+}
+.react-flow__handle {
+  opacity: 0;
+}
+
+/* Recharts: soften the default focus outlines */
+.recharts-surface:focus,
+.recharts-wrapper:focus {
+  outline: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise {
+  animation: rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
