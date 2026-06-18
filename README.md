@@ -39,6 +39,12 @@ npm run preview
 - **Piece detail** — full catalogue description, a cited market reference (a
   comparable auction result), a per-piece valuation history, and a provenance /
   valuation chain rendered as a node diagram (React Flow).
+- **Client onboarding** — a guided 3-step wizard (client & family office → add
+  holdings → review & confirm) that creates a new client and lands on their
+  dashboard. Switch between clients from the header; onboarded clients persist in
+  the browser (`localStorage`), and **Reset to sample** clears them. See the
+  [onboarding playbook](docs/CLIENT-ONBOARDING.md) for the real-world process each
+  step maps to.
 
 ## Stack
 
@@ -48,6 +54,8 @@ No backend, no auth, no database — all data is local mock data in
 
 ## Where the data lives
 
-Everything the app displays comes from `src/data/collection.ts`. Edit that one file
-to change holdings, valuations, history or the total-family-wealth figure used by
-the share toggle.
+The seed collection lives in `src/data/collection.ts` (holdings, valuations,
+history) and is wrapped into the sample client in `src/data/clients.ts` (family
+office name, total family wealth, reporting date). Edit those to change the
+out-of-the-box data. Clients added through the onboarding wizard are held in React
+state and persisted to the browser's `localStorage` — no backend.

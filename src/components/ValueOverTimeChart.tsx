@@ -8,7 +8,8 @@ import {
   YAxis,
 } from 'recharts'
 import type { TooltipProps } from 'recharts'
-import { COLLECTION_VALUE_HISTORY } from '../data/collection'
+import { deriveCollectionValueHistory } from '../data/collection'
+import { useActiveClient } from '../state/ClientsContext'
 import Panel from './Panel'
 import { formatCompactUSD, formatPct } from '../lib/format'
 
@@ -26,10 +27,11 @@ function ChartTooltip({ active, payload, label }: TooltipProps<number, string>) 
 }
 
 export default function ValueOverTimeChart() {
-  const data = COLLECTION_VALUE_HISTORY
-  const first = data[0].value
-  const last = data[data.length - 1].value
-  const change = ((last - first) / first) * 100
+  const client = useActiveClient()
+  const data = client.valueHistory ?? deriveCollectionValueHistory(client.holdings)
+  const first = data[0]?.value ?? 0
+  const last = data[data.length - 1]?.value ?? 0
+  const change = first > 0 ? ((last - first) / first) * 100 : 0
 
   return (
     <Panel

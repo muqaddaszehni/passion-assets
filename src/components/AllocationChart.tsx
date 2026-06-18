@@ -1,11 +1,16 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from 'recharts'
 import { categorySummaries, collectionTotals } from '../data/collection'
+import { useActiveClient } from '../state/ClientsContext'
 import Panel from './Panel'
 import { formatCompactUSD } from '../lib/format'
 
 export default function AllocationChart() {
-  const data = categorySummaries()
-  const total = collectionTotals().value
+  const client = useActiveClient()
+  const data = categorySummaries(client.holdings).filter((d) => d.value > 0)
+  const total = collectionTotals(
+    client.holdings,
+    client.totalFamilyWealth,
+  ).value
 
   return (
     <Panel eyebrow="Composition" title="Allocation by Category">

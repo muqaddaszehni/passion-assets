@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { collectionTotals, TOTAL_FAMILY_WEALTH } from '../data/collection'
+import { collectionTotals } from '../data/collection'
+import { useActiveClient } from '../state/ClientsContext'
 import {
   formatCompactUSD,
   formatPct,
@@ -34,7 +35,9 @@ function Stat({
 }
 
 export default function DashboardHeader() {
-  const t = collectionTotals()
+  const client = useActiveClient()
+  const t = collectionTotals(client.holdings, client.totalFamilyWealth)
+  const totalFamilyWealth = client.totalFamilyWealth
   const [showShare, setShowShare] = useState(false)
   const sharePct = t.shareOfWealth * 100
 
@@ -131,7 +134,7 @@ export default function DashboardHeader() {
                 className="flex items-center bg-brass/25"
                 style={{ width: `${100 - sharePct}%` }}
                 title={`Other family wealth · ${formatCompactUSD(
-                  TOTAL_FAMILY_WEALTH - t.value,
+                  totalFamilyWealth - t.value,
                 )}`}
               />
             </div>
@@ -144,10 +147,10 @@ export default function DashboardHeader() {
               <span className="flex items-center gap-2">
                 <span className="inline-block h-2.5 w-2.5 bg-brass/25" />
                 Other family wealth ·{' '}
-                {formatCompactUSD(TOTAL_FAMILY_WEALTH - t.value)}
+                {formatCompactUSD(totalFamilyWealth - t.value)}
               </span>
               <span className="text-charcoal/45">
-                Total {formatCompactUSD(TOTAL_FAMILY_WEALTH)}
+                Total {formatCompactUSD(totalFamilyWealth)}
               </span>
             </div>
           </div>

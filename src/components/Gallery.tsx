@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
-import { COLLECTION } from '../data/collection'
-import type { Category } from '../types'
+import { useActiveClient } from '../state/ClientsContext'
+import type { Category, Piece } from '../types'
 import PieceCard from './PieceCard'
 
 export type SortKey = 'value' | 'gain' | 'recent'
@@ -20,7 +20,7 @@ const SORTS: { key: SortKey; label: string }[] = [
   { key: 'recent', label: 'Recently valued' },
 ]
 
-function gainPct(p: (typeof COLLECTION)[number]) {
+function gainPct(p: Piece) {
   return (p.currentValue - p.acquisitionPrice) / p.acquisitionPrice
 }
 
@@ -37,18 +37,19 @@ export default function Gallery({
   onSort: (s: SortKey) => void
   onOpen: (id: string) => void
 }) {
+  const holdings = useActiveClient().holdings
   const pieces = useMemo(() => {
     const filtered =
       filter === 'All'
-        ? COLLECTION
-        : COLLECTION.filter((p) => p.category === filter)
+        ? holdings
+        : holdings.filter((p) => p.category === filter)
     const sorted = [...filtered].sort((a, b) => {
       if (sort === 'value') return b.currentValue - a.currentValue
       if (sort === 'gain') return gainPct(b) - gainPct(a)
       return +new Date(b.lastValued) - +new Date(a.lastValued)
     })
     return sorted
-  }, [filter, sort])
+  }, [holdings, filter, sort])
 
   return (
     <section>

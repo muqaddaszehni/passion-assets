@@ -6,22 +6,32 @@ import AllocationChart from './components/AllocationChart'
 import ValueOverTimeChart from './components/ValueOverTimeChart'
 import Gallery, { type SortKey } from './components/Gallery'
 import PieceDetail from './components/PieceDetail'
+import OnboardingWizard from './components/onboarding/OnboardingWizard'
 import Footer from './components/Footer'
-import { COLLECTION } from './data/collection'
+import { ClientsProvider, useClients } from './state/ClientsContext'
 import type { Category } from './types'
 
-const AS_OF = '2026-04-30'
+type View = 'dashboard' | 'onboarding'
 
-export default function App() {
+function AppShell() {
+  const { activeClient, activeClientId } = useClients()
+  const [view, setView] = useState<View>('dashboard')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [filter, setFilter] = useState<Category | 'All'>('All')
   const [sort, setSort] = useState<SortKey>('value')
 
-  const selected = COLLECTION.find((p) => p.id === selectedId) ?? null
+  const selected = activeClient.holdings.find((p) => p.id === selectedId) ?? null
+
+  // Switching clients clears any open detail and returns to the dashboard.
+  useEffect(() => {
+    setSelectedId(null)
+    setFilter('All')
+    setView('dashboard')
+  }, [activeClientId])
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [selectedId])
+  }, [selectedId, view])
 
   const openPiece = (id: string) => setSelectedId(id)
   const closePiece = () => setSelectedId(null)
@@ -34,10 +44,12 @@ export default function App() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <BrandHeader asOf={AS_OF} />
+      <BrandHeader onOnboard={() => setView('onboarding')} />
 
       <main className="mx-auto w-full max-w-register flex-1 px-6 py-8 sm:px-8 sm:py-10">
-        {selected ? (
+        {view === 'onboarding' ? (
+          <OnboardingWizard onDone={() => setView('dashboard')} />
+        ) : selected ? (
           <PieceDetail piece={selected} onBack={closePiece} />
         ) : (
           <div className="flex flex-col gap-10">
@@ -73,5 +85,13 @@ export default function App() {
 
       <Footer />
     </div>
+  )
+}
+
+export default function App() {
+  return (
+    <ClientsProvider>
+      <AppShell />
+    </ClientsProvider>
   )
 }

@@ -47,3 +47,20 @@ export interface CategoryMeta {
   /** one-line character note for the category */
   note: string
 }
+
+export interface Client {
+  id: string
+  /** family-office name, e.g. "The Lansdowne Family Office" */
+  officeName: string
+  /** family name shown beneath the office, e.g. "The Lansdowne Family" */
+  familyName: string
+  /** reporting "as at" date, ISO yyyy-mm-dd */
+  asOf: string
+  /** total family wealth in USD — drives the share-of-wealth toggle */
+  totalFamilyWealth: number
+  holdings: Piece[]
+  /** curated collection-level curve; derived from holdings when absent */
+  valueHistory?: ValuePoint[]
+  /** true for code-seeded clients (never written to localStorage) */
+  seed?: boolean
+}

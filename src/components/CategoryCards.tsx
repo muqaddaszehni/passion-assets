@@ -1,4 +1,5 @@
 import { categorySummaries } from '../data/collection'
+import { useActiveClient } from '../state/ClientsContext'
 import type { Category } from '../types'
 import { formatCompactUSD, formatPct } from '../lib/format'
 
@@ -9,7 +10,8 @@ export default function CategoryCards({
   active: Category | 'All'
   onSelect: (c: Category) => void
 }) {
-  const summaries = categorySummaries()
+  const client = useActiveClient()
+  const summaries = categorySummaries(client.holdings)
 
   return (
     <div className="grid grid-cols-2 gap-px overflow-hidden border border-hairline bg-hairline sm:grid-cols-3 lg:grid-cols-5">
@@ -43,9 +45,11 @@ export default function CategoryCards({
             </span>
             <span
               className="tnum mt-0.5 text-xs"
-              style={{ color: s.gain >= 0 ? '#4A5A4E' : '#7A3B47' }}
+              style={{
+                color: s.count === 0 ? '#1C1C1C40' : s.gain >= 0 ? '#4A5A4E' : '#7A3B47',
+              }}
             >
-              {formatPct(s.gainPct)}
+              {s.count === 0 ? '—' : formatPct(s.gainPct)}
             </span>
           </button>
         )

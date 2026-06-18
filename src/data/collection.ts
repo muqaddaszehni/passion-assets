@@ -272,9 +272,9 @@ export interface CategorySummary {
   gainPct: number
 }
 
-export function categorySummaries(): CategorySummary[] {
+export function categorySummaries(holdings: Piece[]): CategorySummary[] {
   return CATEGORY_META.map((meta) => {
-    const items = COLLECTION.filter((p) => p.category === meta.key)
+    const items = holdings.filter((p) => p.category === meta.key)
     const value = items.reduce((s, p) => s + p.currentValue, 0)
     const cost = items.reduce((s, p) => s + p.acquisitionPrice, 0)
     const gain = value - cost
@@ -300,16 +300,58 @@ export interface CollectionTotals {
   shareOfWealth: number // 0..1
 }
 
-export function collectionTotals(): CollectionTotals {
-  const value = COLLECTION.reduce((s, p) => s + p.currentValue, 0)
-  const cost = COLLECTION.reduce((s, p) => s + p.acquisitionPrice, 0)
+export function collectionTotals(
+  holdings: Piece[],
+  totalFamilyWealth: number,
+): CollectionTotals {
+  const value = holdings.reduce((s, p) => s + p.currentValue, 0)
+  const cost = holdings.reduce((s, p) => s + p.acquisitionPrice, 0)
   const gain = value - cost
   return {
     value,
     cost,
     gain,
     gainPct: cost > 0 ? (gain / cost) * 100 : 0,
-    itemCount: COLLECTION.length,
-    shareOfWealth: value / TOTAL_FAMILY_WEALTH,
+    itemCount: holdings.length,
+    shareOfWealth: totalFamilyWealth > 0 ? value / totalFamilyWealth : 0,
   }
+}
+
+/**
+ * Build a collection-level curve for clients without a curated one. Each
+ * holding is interpolated linearly between its acquisition (year, cost) and
+ * last-valued (year, current value): zero before acquisition, flat at current
+ * value after the last valuation. Summing these avoids the spurious dips a
+ * naive year-bucket sum would produce for sparse per-piece histories.
+ */
+export function deriveCollectionValueHistory(holdings: Piece[]): ValuePoint[] {
+  if (holdings.length === 0) return []
+  const year = (iso: string) => new Date(iso + 'T00:00:00').getFullYear()
+
+  const spans = holdings.map((p) => ({
+    acqYear: year(p.acquisitionDate),
+    acqVal: p.acquisitionPrice,
+    curYear: Math.max(year(p.lastValued), year(p.acquisitionDate)),
+    curVal: p.currentValue,
+  }))
+
+  const minYear = Math.min(...spans.map((s) => s.acqYear))
+  const maxYear = Math.max(...spans.map((s) => s.curYear))
+
+  const valueAt = (s: (typeof spans)[number], y: number) => {
+    if (y <= s.acqYear) return s.acqVal
+    if (y >= s.curYear) return s.curVal
+    const t = (y - s.acqYear) / (s.curYear - s.acqYear)
+    return s.acqVal + t * (s.curVal - s.acqVal)
+  }
+
+  const points: ValuePoint[] = []
+  for (let y = minYear; y <= maxYear; y++) {
+    const value = spans.reduce(
+      (sum, s) => sum + (y < s.acqYear ? 0 : valueAt(s, y)),
+      0,
+    )
+    points.push({ date: String(y), value: Math.round(value) })
+  }
+  return points
 }
