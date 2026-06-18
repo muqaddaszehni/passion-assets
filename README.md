@@ -26,6 +26,9 @@ npm run build
 npm run preview
 ```
 
+**Live demo:** <https://muqaddaszehni.github.io/passion-assets/> — deployed
+automatically from `master` via GitHub Actions (`.github/workflows/deploy.yml`).
+
 ## What's inside
 
 - **Dashboard** — total collection value, unrealised gain (% and absolute), and a
@@ -59,3 +62,11 @@ history) and is wrapped into the sample client in `src/data/clients.ts` (family
 office name, total family wealth, reporting date). Edit those to change the
 out-of-the-box data. Clients added through the onboarding wizard are held in React
 state and persisted to the browser's `localStorage` — no backend.
+
+## Documentation
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — file map, data model, state &
+  persistence, onboarding flow, design system, and how to extend.
+- [`docs/CLIENT-ONBOARDING.md`](docs/CLIENT-ONBOARDING.md) — the business playbook
+  for onboarding a real client, mapped to the in-app wizard.
+- [`CHANGELOG.md`](CHANGELOG.md) — what shipped, by milestone.
